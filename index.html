@@ -10,14 +10,6 @@
             margin: 20px;
             background-color: #f5f5f5;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
         .login-container {
             max-width: 450px;
             margin: 100px auto;
@@ -26,6 +18,14 @@
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             text-align: center;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .header {
             text-align: center;
@@ -54,136 +54,13 @@
         .logout-btn:hover {
             background: #c82333;
         }
-        .calendar-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+        .login-form {
+            text-align: left;
         }
-        .nav-btn {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .nav-btn:hover {
-            background: #0056b3;
-        }
-        .current-month {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 1px;
-            background: #ddd;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        .day-header {
-            background: #333;
-            color: white;
-            padding: 15px;
+        .login-form h2 {
             text-align: center;
-            font-weight: bold;
-        }
-        .calendar-day {
-            background: white;
-            min-height: 100px;
-            padding: 10px;
-            cursor: pointer;
-            position: relative;
-        }
-        .calendar-day:hover {
-            background: #f8f9fa;
-        }
-        .calendar-day.other-month {
-            background: #f8f9fa;
-            color: #999;
-            cursor: default;
-        }
-        .calendar-day.view-only {
-            cursor: default;
-        }
-        .calendar-day.view-only:hover {
-            background: white;
-        }
-        .day-number {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .leave-item {
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            margin-bottom: 2px;
-            display: block;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-            text-align: center;
-            position: relative;
-        }
-        .leave-item.editable {
-            border: 2px solid #fff;
-            box-shadow: 0 0 0 1px #333;
-        }
-        .leave-item.editable:hover {
-            transform: scale(1.05);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .leave-item.non-editable {
-            cursor: default;
-            opacity: 0.8;
-        }
-        .leave-item.non-editable:hover {
-            opacity: 1;
-        }
-        
-        /* Individual team member colors */
-        .member-FZL { background: #e74c3c; } /* Red */
-        .member-FRDY { background: #3498db; } /* Blue */
-        .member-HLZH { background: #2ecc71; } /* Green */
-        .member-NRDN { background: #f39c12; } /* Orange */
-        .member-MHSN { background: #9b59b6; } /* Purple */
-        .member-FQH { background: #1abc9c; } /* Teal */
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-        .modal-content {
-            background-color: white;
-            margin: 10% auto;
-            padding: 20px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .close {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close:hover {
-            color: black;
+            margin-bottom: 30px;
+            color: #333;
         }
         .form-group {
             margin-bottom: 15px;
@@ -193,160 +70,79 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        .form-group input, .form-group select, .form-group textarea {
+        .form-group input {
             width: 100%;
-            padding: 8px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
+            font-size: 16px;
         }
         .btn {
             background: #007bff;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border-radius: 5px;
             cursor: pointer;
-            margin-right: 10px;
+            font-size: 16px;
+            width: 100%;
         }
         .btn:hover {
             background: #0056b3;
-        }
-        .btn-danger {
-            background: #dc3545;
-        }
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        .team-legend {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 5px;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .legend-color {
-            width: 25px;
-            height: 20px;
-            border-radius: 4px;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: bold;
-        }
-        .member-preview {
-            padding: 5px 10px;
-            border-radius: 4px;
-            color: white;
-            font-weight: bold;
-            margin-top: 5px;
-            text-align: center;
-        }
-        .login-form {
-            text-align: left;
-        }
-        .login-form h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-        }
-        .access-note {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #1976d2;
-        }
-        .permission-note {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            color: #856404;
-        }
-        .view-only-note {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            color: #721c24;
-        }
-        .login-tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e9ecef;
-        }
-        .login-tab {
-            flex: 1;
-            padding: 12px;
-            background: #f8f9fa;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            border-bottom: 3px solid transparent;
-        }
-        .login-tab.active {
-            background: white;
-            border-bottom-color: #007bff;
-            color: #007bff;
-            font-weight: bold;
-        }
-        .login-tab:hover {
-            background: #e9ecef;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .code-input {
-            font-family: 'Courier New', monospace;
-            font-size: 18px;
-            text-align: center;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-        .codes-list {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-        }
-        .codes-list h4 {
-            margin-top: 0;
-            color: #495057;
-        }
-        .code-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px solid #dee2e6;
-        }
-        .code-item:last-child {
-            border-bottom: none;
         }
         .error-message {
             color: #dc3545;
             font-size: 14px;
             margin-top: 10px;
             text-align: center;
+            padding: 10px;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+        }
+        .success-message {
+            color: #155724;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            padding: 10px;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+        }
+        .access-codes {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .access-codes h4 {
+            margin-top: 0;
+            color: #495057;
+            font-family: Arial, sans-serif;
+        }
+        .code-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .code-item:last-child {
+            border-bottom: none;
+        }
+        .calendar-placeholder {
+            text-align: center;
+            padding: 50px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .calendar-placeholder h3 {
+            color: #28a745;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -355,43 +151,23 @@
     <div id="loginScreen" class="login-container">
         <h2>Team Leave Calendar</h2>
         
-        <div class="login-tabs">
-            <button class="login-tab active" onclick="switchTab('member')">Team Member</button>
-            <button class="login-tab" onclick="switchTab('view')">View Only</button>
-        </div>
-
-        <!-- Member Login Tab -->
-        <div id="memberTab" class="tab-content active">
-            <div class="access-note">
-                <strong>Team Member Access:</strong> Enter your unique code to manage your leave entries.
+        <form id="loginForm" class="login-form">
+            <div class="form-group">
+                <label for="accessCode">Access Code:</label>
+                <input type="text" id="accessCode" placeholder="Enter your access code" required>
             </div>
-            <form id="memberLoginForm" class="login-form">
-                <div class="form-group">
-                    <label for="memberCode">Your Access Code:</label>
-                    <input type="password" id="memberCode" class="code-input" placeholder="Enter your code" required maxlength="8">
-                </div>
-                <button type="submit" class="btn" style="width: 100%;">Login as Team Member</button>
-                <div id="memberError" class="error-message" style="display: none;"></div>
-            </form>
-            
-            <!-- Development/Demo purposes - remove in production -->
-            <div class="codes-list">
-                <h4>🔒 Access Codes (for demo):</h4>
-                <div class="code-item"><span>FZL:</span> <strong>FZL2024</strong></div>
-                <div class="code-item"><span>FRDY:</span> <strong>FRDY2024</strong></div>
-                <div class="code-item"><span>HLZH:</span> <strong>HLZH2024</strong></div>
-                <div class="code-item"><span>NRDN:</span> <strong>NRDN2024</strong></div>
-                <div class="code-item"><span>MHSN:</span> <strong>MHSN2024</strong></div>
-                <div class="code-item"><span>FQH:</span> <strong>FQH2024</strong></div>
-            </div>
-        </div>
-
-        <!-- View Only Tab -->
-        <div id="viewTab" class="tab-content">
-            <div class="access-note">
-                <strong>View Only Access:</strong> Browse the calendar without editing permissions.
-            </div>
-            <button type="button" class="btn" style="width: 100%;" onclick="loginAsViewer()">View Calendar</button>
+            <button type="submit" class="btn">Login</button>
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            <div id="successMessage" class="success-message" style="display: none;"></div>
+        </form>
+        
+        <!-- Demo access codes -->
+        <div class="access-codes">
+            <h4>🔒 Demo Access Codes:</h4>
+            <div class="code-item"><span>Team Lead:</span> <strong>ADMIN2024</strong></div>
+            <div class="code-item"><span>Member 1:</span> <strong>USER001</strong></div>
+            <div class="code-item"><span>Member 2:</span> <strong>USER002</strong></div>
+            <div class="code-item"><span>View Only:</span> <strong>VIEWER</strong></div>
         </div>
     </div>
 
@@ -399,224 +175,21 @@
     <div id="calendarScreen" class="container" style="display: none;">
         <div class="header">
             <h1>Team Leave Calendar</h1>
-            <p id="headerInstructions">Click on any date to add your leave • Double-click your own entries to edit</p>
             <div class="user-info">
                 <span id="currentUserDisplay"></span>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
         </div>
         
-        <div id="permissionNote" class="permission-note">
-            <strong>Your Permissions:</strong> You can add new leave for yourself and edit/delete only your own existing entries. Other members' entries are read-only.
-        </div>
-        
-        <div id="viewOnlyNote" class="view-only-note" style="display: none;">
-            <strong>View Only Mode:</strong> You can browse all team leave entries but cannot make any changes. To edit leave, login with your team member access code.
-        </div>
-        
-        <div class="calendar-nav">
-            <button class="nav-btn" onclick="previousMonth()">← Previous</button>
-            <div class="current-month" id="currentMonth"></div>
-            <button class="nav-btn" onclick="nextMonth()">Next →</button>
-        </div>
-        
-        <div class="calendar" id="calendar"></div>
-        
-        <div class="team-legend">
-            <div class="legend-item">
-                <div class="legend-color member-FZL">FZL</div>
-                <span><strong>FZL</strong> - Red</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color member-FRDY">FRDY</div>
-                <span><strong>FRDY</strong> - Blue</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color member-HLZH">HLZH</div>
-                <span><strong>HLZH</strong> - Green</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color member-NRDN">NRDN</div>
-                <span><strong>NRDN</strong> - Orange</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color member-MHSN">MHSN</div>
-                <span><strong>MHSN</strong> - Purple</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color member-FQH">FQH</div>
-                <span><strong>FQH</strong> - Teal</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal for adding/editing leave -->
-    <div id="leaveModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Add Leave</h2>
-                <span class="close" onclick="closeModal()">&times;</span>
-            </div>
-            <form id="leaveForm">
-                <div class="form-group">
-                    <label for="staffName">Team Member:</label>
-                    <input type="text" id="staffName" readonly style="background: #f8f9fa;">
-                    <div id="memberPreview" class="member-preview"></div>
-                </div>
-                <div class="form-group">
-                    <label for="leaveType">Leave Type:</label>
-                    <select id="leaveType" required>
-                        <option value="Annual">Annual Leave</option>
-                        <option value="Sick">Sick Leave</option>
-                        <option value="Personal">Personal Leave</option>
-                        <option value="Emergency">Emergency Leave</option>
-                        <option value="Maternity">Maternity/Paternity Leave</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="startDate">Start Date:</label>
-                    <input type="date" id="startDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="endDate">End Date:</label>
-                    <input type="date" id="endDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="notes">Notes (optional):</label>
-                    <textarea id="notes" rows="3" placeholder="e.g., Half day, Morning only, etc."></textarea>
-                </div>
-                <div>
-                    <button type="submit" class="btn">Save Leave</button>
-                    <button type="button" class="btn btn-danger" id="deleteBtn" onclick="deleteLeave()" style="display: none;">Delete</button>
-                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
-                </div>
-            </form>
+        <div class="calendar-placeholder">
+            <h3>✅ Login Successful!</h3>
+            <p>Welcome to the Team Leave Calendar system.</p>
+            <p>Your calendar interface would appear here.</p>
+            <p><strong>Current User:</strong> <span id="userRole"></span></p>
         </div>
     </div>
 
     <script>
-        let currentDate = new Date();
-        let leaves = JSON.parse(localStorage.getItem('teamLeaves')) || [];
-        let editingLeaveId = null;
-        let currentUser = localStorage.getItem('currentUser') || null;
-        let userRole = localStorage.getItem('userRole') || null; // 'member' or 'viewer'
-
-        const teamMembers = ['FZL', 'FRDY', 'HLZH', 'NRDN', 'MHSN', 'FQH'];
-        
-        // Access codes for each team member
+        // Access codes and their corresponding user roles
         const accessCodes = {
-            'FZL2024': 'FZL',
-            'FRDY2024': 'FRDY',
-            'HLZH2024': 'HLZH',
-            'NRDN2024': 'NRDN',
-            'MHSN2024': 'MHSN',
-            'FQH2024': 'FQH'
-        };
-
-        // Check if user is logged in on page load
-        if (currentUser && userRole) {
-            showCalendar();
-        }
-
-        // Tab switching
-        function switchTab(tabName) {
-            // Update tab buttons
-            document.querySelectorAll('.login-tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
-            
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(tabName + 'Tab').classList.add('active');
-        }
-
-        // Member login functionality
-        document.getElementById('memberLoginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const enteredCode = document.getElementById('memberCode').value.trim().toUpperCase();
-            const errorDiv = document.getElementById('memberError');
-            
-            console.log('Entered code:', enteredCode); // Debug log
-            console.log('Available codes:', Object.keys(accessCodes)); // Debug log
-            
-            if (accessCodes[enteredCode]) {
-                currentUser = accessCodes[enteredCode];
-                userRole = 'member';
-                localStorage.setItem('currentUser', currentUser);
-                localStorage.setItem('userRole', userRole);
-                showCalendar();
-                errorDiv.style.display = 'none';
-            } else {
-                errorDiv.textContent = 'Invalid access code. Please check your code and try again.';
-                errorDiv.style.display = 'block';
-                document.getElementById('memberCode').value = '';
-            }
-        });
-
-        // View only login
-        function loginAsViewer() {
-            currentUser = null;
-            userRole = 'viewer';
-            localStorage.setItem('userRole', userRole);
-            localStorage.removeItem('currentUser');
-            showCalendar();
-        }
-
-        function showCalendar() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('calendarScreen').style.display = 'block';
-            
-            if (userRole === 'member') {
-                document.getElementById('currentUserDisplay').innerHTML = `Logged in as: <strong>${currentUser}</strong>`;
-                document.getElementById('headerInstructions').textContent = 'Click on any date to add your leave • Double-click your own entries to edit';
-                document.getElementById('permissionNote').style.display = 'block';
-                document.getElementById('viewOnlyNote').style.display = 'none';
-                updateMemberPreview();
-            } else {
-                document.getElementById('currentUserDisplay').innerHTML = `<strong>View Only Mode</strong>`;
-                document.getElementById('headerInstructions').textContent = 'Browse team leave calendar • Login with access code to make changes';
-                document.getElementById('permissionNote').style.display = 'none';
-                document.getElementById('viewOnlyNote').style.display = 'block';
-            }
-            
-            renderCalendar();
-        }
-
-        function logout() {
-            currentUser = null;
-            userRole = null;
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('userRole');
-            document.getElementById('loginScreen').style.display = 'block';
-            document.getElementById('calendarScreen').style.display = 'none';
-            document.getElementById('memberCode').value = '';
-            document.getElementById('memberError').style.display = 'none';
-            switchTab('member'); // Reset to member tab
-        }
-
-        function updateMemberPreview() {
-            const preview = document.getElementById('memberPreview');
-            const staffNameField = document.getElementById('staffName');
-            
-            if (currentUser && userRole === 'member') {
-                staffNameField.value = currentUser;
-                preview.textContent = currentUser;
-                preview.className = `member-preview member-${currentUser}`;
-                preview.style.display = 'block';
-            }
-        }
-
-        function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            
-            document.getElementById('currentMonth').textContent = 
-                new Date(year, month).toLocaleDateString('en-US', { 
-                    month: 'long', 
-                    year: 'numeric' 
-                });
-
-            const calendar = document.getElementById('calendar');
-            calendar.innerHTML = '';
-
-            const dayHeaders = ['Sun', 'Mon', 'Tue', 'We
+            'ADMIN2024': { user: 'Team Lead', role: 'admin'
