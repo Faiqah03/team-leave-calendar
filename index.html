@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team Leave Calendar</title>
+    <title>Interactive Team Leave Calendar</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -36,6 +36,9 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        .nav-btn:hover {
+            background: #0056b3;
+        }
         .current-month {
             font-size: 24px;
             font-weight: bold;
@@ -59,26 +62,130 @@
             background: white;
             min-height: 100px;
             padding: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+        .calendar-day:hover {
+            background: #f8f9fa;
+        }
+        .calendar-day.other-month {
+            background: #f8f9fa;
+            color: #999;
+            cursor: default;
         }
         .day-number {
             font-weight: bold;
             margin-bottom: 5px;
         }
         .leave-item {
-            background: #ff6b6b;
-            color: white;
             padding: 2px 5px;
             border-radius: 3px;
-            font-size: 12px;
+            font-size: 11px;
             margin-bottom: 2px;
             display: block;
+            color: white;
+            cursor: pointer;
+        }
+        .leave-annual { background: #28a745; }
+        .leave-sick { background: #dc3545; }
+        .leave-personal { background: #ffc107; color: #000; }
+        .leave-emergency { background: #fd7e14; }
+        .leave-maternity { background: #e83e8c; }
+        .leave-other { background: #6c757d; }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 15px;
+            border-radius: 3px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Team Leave Calendar</h1>
+            <h1>Interactive Team Leave Calendar</h1>
+            <p>Click on any date to add leave</p>
         </div>
         
         <div class="calendar-nav">
@@ -88,25 +195,83 @@
         </div>
         
         <div class="calendar" id="calendar"></div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color leave-annual"></div>
+                <span>Annual Leave</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color leave-sick"></div>
+                <span>Sick Leave</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color leave-personal"></div>
+                <span>Personal Leave</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color leave-emergency"></div>
+                <span>Emergency Leave</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color leave-maternity"></div>
+                <span>Maternity/Paternity</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color leave-other"></div>
+                <span>Other</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for adding/editing leave -->
+    <div id="leaveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Leave</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="leaveForm">
+                <div class="form-group">
+                    <label for="staffName">Staff Name:</label>
+                    <input type="text" id="staffName" required>
+                </div>
+                <div class="form-group">
+                    <label for="leaveType">Leave Type:</label>
+                    <select id="leaveType" required>
+                        <option value="annual">Annual Leave</option>
+                        <option value="sick">Sick Leave</option>
+                        <option value="personal">Personal Leave</option>
+                        <option value="emergency">Emergency Leave</option>
+                        <option value="maternity">Maternity/Paternity Leave</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="startDate">Start Date:</label>
+                    <input type="date" id="startDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="endDate">End Date:</label>
+                    <input type="date" id="endDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes (optional):</label>
+                    <textarea id="notes" rows="3"></textarea>
+                </div>
+                <div>
+                    <button type="submit" class="btn">Save Leave</button>
+                    <button type="button" class="btn btn-danger" id="deleteBtn" onclick="deleteLeave()" style="display: none;">Delete</button>
+                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
         let currentDate = new Date();
-        
-        const leaves = [
-            {
-                staffName: "John Doe",
-                leaveType: "Annual Leave",
-                startDate: "2026-04-15",
-                endDate: "2026-04-17"
-            },
-            {
-                staffName: "Jane Smith",
-                leaveType: "Sick Leave",
-                startDate: "2026-04-20",
-                endDate: "2026-04-20"
-            }
-        ];
+        let leaves = JSON.parse(localStorage.getItem('teamLeaves')) || [];
+        let editingLeaveId = null;
 
         function renderCalendar() {
             const year = currentDate.getFullYear();
@@ -136,13 +301,14 @@
 
             for (let i = 0; i < startingDayOfWeek; i++) {
                 const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day';
+                dayElement.className = 'calendar-day other-month';
                 calendar.appendChild(dayElement);
             }
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayElement = document.createElement('div');
                 dayElement.className = 'calendar-day';
+                dayElement.onclick = () => openModal(year, month, day);
                 
                 const dayNumber = document.createElement('div');
                 dayNumber.className = 'day-number';
@@ -158,8 +324,12 @@
                     
                     if (checkDate >= startDate && checkDate <= endDate) {
                         const leaveElement = document.createElement('div');
-                        leaveElement.className = 'leave-item';
+                        leaveElement.className = `leave-item leave-${leave.leaveType}`;
                         leaveElement.textContent = leave.staffName;
+                        leaveElement.onclick = (e) => {
+                            e.stopPropagation();
+                            editLeave(leave.id);
+                        };
                         dayElement.appendChild(leaveElement);
                     }
                 });
@@ -167,6 +337,81 @@
                 calendar.appendChild(dayElement);
             }
         }
+
+        function openModal(year, month, day) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            document.getElementById('startDate').value = dateStr;
+            document.getElementById('endDate').value = dateStr;
+            document.getElementById('modalTitle').textContent = 'Add Leave';
+            document.getElementById('deleteBtn').style.display = 'none';
+            document.getElementById('leaveForm').reset();
+            document.getElementById('startDate').value = dateStr;
+            document.getElementById('endDate').value = dateStr;
+            document.getElementById('leaveModal').style.display = 'block';
+            editingLeaveId = null;
+        }
+
+        function editLeave(leaveId) {
+            const leave = leaves.find(l => l.id === leaveId);
+            if (leave) {
+                document.getElementById('staffName').value = leave.staffName;
+                document.getElementById('leaveType').value = leave.leaveType;
+                document.getElementById('startDate').value = leave.startDate;
+                document.getElementById('endDate').value = leave.endDate;
+                document.getElementById('notes').value = leave.notes || '';
+                document.getElementById('modalTitle').textContent = 'Edit Leave';
+                document.getElementById('deleteBtn').style.display = 'inline-block';
+                document.getElementById('leaveModal').style.display = 'block';
+                editingLeaveId = leaveId;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('leaveModal').style.display = 'none';
+            editingLeaveId = null;
+        }
+
+        function saveLeaves() {
+            localStorage.setItem('teamLeaves', JSON.stringify(leaves));
+        }
+
+        function deleteLeave() {
+            if (editingLeaveId && confirm('Are you sure you want to delete this leave?')) {
+                leaves = leaves.filter(l => l.id !== editingLeaveId);
+                saveLeaves();
+                renderCalendar();
+                closeModal();
+            }
+        }
+
+        document.getElementById('leaveForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                staffName: document.getElementById('staffName').value,
+                leaveType: document.getElementById('leaveType').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                notes: document.getElementById('notes').value
+            };
+
+            if (new Date(formData.endDate) < new Date(formData.startDate)) {
+                alert('End date cannot be before start date');
+                return;
+            }
+
+            if (editingLeaveId) {
+                const leaveIndex = leaves.findIndex(l => l.id === editingLeaveId);
+                leaves[leaveIndex] = { ...formData, id: editingLeaveId };
+            } else {
+                formData.id = Date.now().toString();
+                leaves.push(formData);
+            }
+
+            saveLeaves();
+            renderCalendar();
+            closeModal();
+        });
 
         function previousMonth() {
             currentDate.setMonth(currentDate.getMonth() - 1);
@@ -176,6 +421,13 @@
         function nextMonth() {
             currentDate.setMonth(currentDate.getMonth() + 1);
             renderCalendar();
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('leaveModal');
+            if (event.target === modal) {
+                closeModal();
+            }
         }
 
         renderCalendar();
