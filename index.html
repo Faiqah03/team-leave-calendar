@@ -19,7 +19,7 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .login-container {
-            max-width: 400px;
+            max-width: 450px;
             margin: 100px auto;
             background: white;
             padding: 30px;
@@ -105,6 +105,12 @@
             color: #999;
             cursor: default;
         }
+        .calendar-day.view-only {
+            cursor: default;
+        }
+        .calendar-day.view-only:hover {
+            background: white;
+        }
         .day-number {
             font-weight: bold;
             margin-bottom: 5px;
@@ -131,10 +137,10 @@
         }
         .leave-item.non-editable {
             cursor: default;
-            opacity: 0.7;
+            opacity: 0.8;
         }
         .leave-item.non-editable:hover {
-            opacity: 0.9;
+            opacity: 1;
         }
         
         /* Individual team member colors */
@@ -270,668 +276,77 @@
             font-size: 14px;
             color: #856404;
         }
-    </style>
-</head>
-<body>
-    <!-- Login Screen -->
-    <div id="loginScreen" class="login-container">
-        <h2>Team Leave Calendar</h2>
-        <div class="access-note">
-            <strong>Secure Access:</strong> Each team member can only edit their own leave entries.
-        </div>
-        <form id="loginForm" class="login-form">
-            <div class="form-group">
-                <label for="loginSelect">Select Your Name:</label>
-                <select id="loginSelect" required>
-                    <option value="">Choose your name</option>
-                    <option value="FZL">FZL</option>
-                    <option value="FRDY">FRDY</option>
-                    <option value="HLZH">HLZH</option>
-                    <option value="NRDN">NRDN</option>
-                    <option value="MHSN">MHSN</option>
-                    <option value="FQH">FQH</option>
-                </select>
-            </div>
-            <button type="submit" class="btn" style="width: 100%;">Access Calendar</button>
-        </form>
-    </div>
-
-    <!-- Main Calendar (hidden initially) -->
-    <div id="calendarScreen" class="container" style="display: none;">
-        <div class="header">
-            <h1>Team Leave Calendar</h1>
-            <p>Click on any date to add your leave • Double-click your own entries to edit</p>
-            <div class="user-info">
-                Logged in as: <strong id="currentUser"></strong>
-                <button class="logout-btn" onclick="logout()">Logout</button>
-            </div>
-        </div>
-        
-        <div class="permission-note">
-            <strong>Your Permissions:</strong> You can add new leave for yourself and edit/delete only your own existing entries. Other members' entries are read-only.
-        </div>
-        
-        <div class="calendar-nav">
-            <button class="nav-btn" onclick="previousMonth()">← Previous</button>
-            <div class="current-month" id="currentMonth"></div>
-            <button class="nav-btn" onclick="nextMonth()">Next →</button>
-        </div>
-        
-        <div class="calendar" id="calendar"></div>
-        
-        <div class="team-legend">
-            <div class="legend-item">
-                <div class="legend-color member-FZL">FZL</div>
-                <span><strong>FZL</strong> - Red</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color member-FRDY">FRDY</div>
-                <span><strong>FRDY</strong> - Blue</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color member-HLZH">HLZH</div>
-                <span><strong>HLZH</strong> - Green</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color member-NRDN">NRDN</div>
-                <span><strong>NRDN</strong> - Orange</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color member-MHSN">MHSN</div>
-                <span><strong>MHSN</strong> - Purple</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color member-FQH">FQH</div>
-                <span><strong>FQH</strong> - Teal</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal for adding/editing leave -->
-    <div id="leaveModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Add Leave</h2>
-                <span class="close" onclick="closeModal()">&times;</span>
-            </div>
-            <form id="leaveForm">
-                <div class="form-group">
-                    <label for="staffName">Team Member:</label>
-                    <input type="text" id="staffName" readonly style="background: #f8f9fa;">
-                    <div id="memberPreview" class="member-preview"></div>
-                </div>
-                <div class="form-group">
-                    <label for="leaveType">Leave Type:</label>
-                    <select id="leaveType" required>
-                        <option value="Annual">Annual Leave</option>
-                        <option value="Sick">Sick Leave</option>
-                        <option value="Personal">Personal Leave</option>
-                        <option value="Emergency">Emergency Leave</option>
-                        <option value="Maternity">Maternity/Paternity Leave</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="startDate">Start Date:</label>
-                    <input type="date" id="startDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="endDate">End Date:</label>
-                    <input type="date" id="endDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="notes">Notes (optional):</label>
-                    <textarea id="notes" rows="3" placeholder="e.g., Half day, Morning only, etc."></textarea>
-                </div>
-                <div>
-                    <button type="submit" class="btn">Save Leave</button>
-                    <button type="button" class="btn btn-danger" id="deleteBtn" onclick="deleteLeave()" style="display: none;">Delete</button>
-                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        let currentDate = new Date();
-        let leaves = JSON.parse(localStorage.getItem('teamLeaves')) || [];
-        let editingLeaveId = null;
-        let currentUser = localStorage.getItem('currentUser') || null;
-
-        const teamMembers = ['FZL', 'FRDY', 'HLZH', 'NRDN', 'MHSN', 'FQH'];
-
-        // Check if user is logged in on page load
-        if (currentUser) {
-            showCalendar();
-        }
-
-        // Login functionality
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const selectedUser = document.getElementById('loginSelect').value;
-            if (selectedUser) {
-                currentUser = selectedUser;
-                localStorage.setItem('currentUser', currentUser);
-                showCalendar();
-            }
-        });
-
-        function showCalendar() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('calendarScreen').style.display = 'block';
-            document.getElementById('currentUser').textContent = currentUser;
-            updateMemberPreview();
-            renderCalendar();
-        }
-
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            document.getElementById('loginScreen').style.display = 'block';
-            document.getElementById('calendarScreen').style.display = 'none';
-            document.getElementById('loginSelect').value = '';
-        }
-
-        function updateMemberPreview() {
-            const preview = document.getElementById('memberPreview');
-            const staffNameField = document.getElementById('staffName');
-            
-            if (currentUser) {
-                staffNameField.value = currentUser;
-                preview.textContent = currentUser;
-                preview.className = `member-preview member-${currentUser}`;
-                preview.style.display = 'block';
-            }
-        }
-
-        function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            
-            document.getElementById('currentMonth').textContent = 
-                new Date(year, month).toLocaleDateString('en-US', { 
-                    month: 'long', 
-                    year: 'numeric' 
-                });
-
-            const calendar = document.getElementById('calendar');
-            calendar.innerHTML = '';
-
-            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            dayHeaders.forEach(day => {
-                const dayElement = document.createElement('div');
-                dayElement.className = 'day-header';
-                dayElement.textContent = day;
-                calendar.appendChild(dayElement);
-            });
-
-            const firstDay = new Date(year, month, 1);
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const startingDayOfWeek = firstDay.getDay();
-
-            for (let i = 0; i < startingDayOfWeek; i++) {
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day other-month';
-                calendar.appendChild(dayElement);
-            }
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day';
-                dayElement.onclick = () => openModal(year, month, day);
-                
-                const dayNumber = document.createElement('div');
-                dayNumber.className = 'day-number';
-                dayNumber.textContent = day;
-                dayElement.appendChild(dayNumber);
-
-                // Find leaves for this day
-                const dayLeaves = leaves.filter(leave => {
-                    const startDate = new Date(leave.startDate);
-                    const endDate = new Date(leave.endDate);
-                    const checkDate = new Date(year, month, day);
-                    return checkDate >= startDate && checkDate <= endDate;
-                });
-
-                dayLeaves.forEach(leave => {
-                    const leaveElement = document.createElement('div');
-                    const isEditable = leave.staffName === currentUser;
-                    
-                    leaveElement.className = `leave-item member-${leave.staffName} ${isEditable ? 'editable' : 'non-editable'}`;
-                    leaveElement.textContent = leave.staffName;
-                    
-                    // Create tooltip
-                    let tooltip = `${leave.staffName} - ${leave.leaveType}`;
-                    if (leave.notes) tooltip += `\n${leave.notes}`;
-                    if (isEditable) {
-                        tooltip += '\n(Double-click to edit)';
-                    } else {
-                        tooltip += '\n(Read-only - not your entry)';
-                    }
-                    leaveElement.title = tooltip;
-                    
-                    // Add click handlers
-                    if (isEditable) {
-                        leaveElement.ondblclick = (e) => {
-                            e.stopPropagation();
-                            editLeave(leave.id);
-                        };
-                        leaveElement.onclick = (e) => {
-                            e.stopPropagation();
-                            // Single click just shows info
-                        };
-                    } else {
-                        leaveElement.onclick = (e) => {
-                            e.stopPropagation();
-                            alert(`This is ${leave.staffName}'s leave entry.\nYou can only edit your own entries.\n\nDetails:\n- Type: ${leave.leaveType}\n- Dates: ${leave.startDate} to ${leave.endDate}${leave.notes ? '\n- Notes: ' + leave.notes : ''}`);
-                        };
-                    }
-                    
-                    dayElement.appendChild(leaveElement);
-                });
-
-                calendar.appendChild(dayElement);
-            }
-        }
-
-        function openModal(year, month, day) {
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            document.getElementById('startDate').value = dateStr;
-            document.getElementById('endDate').value = dateStr;
-            document.getElementById('modalTitle').textContent = 'Add Leave';
-            document.getElementById('deleteBtn').style.display = 'none';
-            document.getElementById('leaveForm').reset();
-            document.getElementById('startDate').value = dateStr;
-            document.getElementById('endDate').value = dateStr;
-            updateMemberPreview();
-            document.getElementById('leaveModal').style.display = 'block';
-            editingLeaveId = null;
-        }
-
-        function editLeave(leaveId) {
-            const leave = leaves.find(l => l.id === leaveId);
-            
-            // Double-check permissions
-            if (!leave) {
-                alert('Leave entry not found!');
-                return;
-            }
-            
-            if (leave.staffName !== currentUser) {
-                alert(`You can only edit your own leave entries!\nThis entry belongs to ${leave.staffName}.`);
-                return;
-            }
-
-            // Populate form with leave data
-            document.getElementById('leaveType').value = leave.leaveType;
-            document.getElementById('startDate').value = leave.startDate;
-            document.getElementById('endDate').value = leave.endDate;
-            document.getElementById('notes').value = leave.notes || '';
-            document.getElementById('modalTitle').textContent = 'Edit Your Leave';
-            document.getElementById('deleteBtn').style.display = 'inline-block';
-            updateMemberPreview();
-            document.getElementById('leaveModal').style.display = 'block';
-            editingLeaveId = leaveId;
-        }
-
-        function closeModal() {
-            document.getElementById('leaveModal').style.display = 'none';
-            editingLeaveId = null;
-        }
-
-        function saveLeaves() {
-            localStorage.setItem('teamLeaves', JSON.stringify(leaves));
-        }
-
-        function deleteLeave() {
-            if (!editingLeaveId) {
-                alert('No leave selected for deletion!');
-                return;
-            }
-
-            const leave = leaves.find(l => l.id === editingLeaveId);
-            
-            if (!leave) {
-                alert('Leave entry not found!');
-                return;
-            }
-            
-            if (leave.staffName !== currentUser) {
-                alert(`You can only delete your own leave entries!\nThis entry belongs to ${leave.staffName}.`);
-                return;
-            }
-
-            if (confirm(`Are you sure you want to delete this leave?\n\nType: ${leave.leaveType}\nDates: ${leave.startDate} to ${leave.endDate}`)) {
-                leaves = leaves.filter(l => l.id !== editingLeaveId);
-                saveLeaves();
-                renderCalendar();
-                closeModal();
-                alert('Leave deleted successfully!');
-            }
-        }
-
-        document.getElementById('leaveForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = {
-                staffName: currentUser, // Always use current user
-                leaveType: document.getElementById('leaveType').value,
-                startDate: document.getElementById('startDate').value,
-                endDate: document.getElementById('endDate').value,
-                notes: document.getElementById('notes').value.trim()
-            };
-
-            // Validate dates
-            if (new Date(formData.endDate) < new Date(formData.startDate)) {
-                alert('End date cannot be before start date!');
-                return;
-            }
-
-            if (editingLeaveId) {
-                // Editing existing leave
-                const leave = leaves.find(l => l.id === editingLeaveId);
-                
-                if (!leave) {
-                    alert('Leave entry not found!');
-                    return;
-                }
-                
-                if (leave.staffName !== currentUser) {
-                    alert(`You can only edit your own leave entries!\nThis entry belongs to ${leave.staffName}.`);
-                    return;
-                }
-
-                const leaveIndex = leaves.findIndex(l => l.id === editingLeaveId);
-                leaves[leaveIndex] = { ...formData, id: editingLeaveId };
-                alert('Leave updated successfully!');
-            } else {
-                // Adding new leave
-                formData.id = Date.now().toString() + '_' + currentUser;
-                leaves.push(formData);
-                alert('Leave added successfully!');
-            }
-
-            saveLeaves();
-            renderCalendar();
-            closeModal();
-        });
-
-        function previousMonth() {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
-        }
-
-        <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team Leave Calendar - Secure Access</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            position: relative;
-        }
-        .user-info {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: #f8f9fa;
-            padding: 10px 15px;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        .logout-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-            margin-left: 10px;
-            font-size: 12px;
-        }
-        .logout-btn:hover {
-            background: #c82333;
-        }
-        .calendar-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .nav-btn {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .nav-btn:hover {
-            background: #0056b3;
-        }
-        .current-month {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 1px;
-            background: #ddd;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        .day-header {
-            background: #333;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-weight: bold;
-        }
-        .calendar-day {
-            background: white;
-            min-height: 100px;
+        .view-only-note {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
             padding: 10px;
-            cursor: pointer;
-            position: relative;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #721c24;
         }
-        .calendar-day:hover {
+        .login-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .login-tab {
+            flex: 1;
+            padding: 12px;
             background: #f8f9fa;
-        }
-        .calendar-day.other-month {
-            background: #f8f9fa;
-            color: #999;
-            cursor: default;
-        }
-        .day-number {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .leave-item {
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            margin-bottom: 2px;
-            display: block;
-            color: white;
+            border: none;
             cursor: pointer;
+            font-size: 16px;
+            border-bottom: 3px solid transparent;
+        }
+        .login-tab.active {
+            background: white;
+            border-bottom-color: #007bff;
+            color: #007bff;
             font-weight: bold;
-            text-align: center;
-            position: relative;
         }
-        .leave-item.editable {
-            border: 2px solid #fff;
-            box-shadow: 0 0 0 1px #333;
+        .login-tab:hover {
+            background: #e9ecef;
         }
-        .leave-item.editable:hover {
-            transform: scale(1.05);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .leave-item.non-editable {
-            cursor: default;
-            opacity: 0.7;
-        }
-        .leave-item.non-editable:hover {
-            opacity: 0.9;
-        }
-        
-        /* Individual team member colors */
-        .member-FZL { background: #e74c3c; } /* Red */
-        .member-FRDY { background: #3498db; } /* Blue */
-        .member-HLZH { background: #2ecc71; } /* Green */
-        .member-NRDN { background: #f39c12; } /* Orange */
-        .member-MHSN { background: #9b59b6; } /* Purple */
-        .member-FQH { background: #1abc9c; } /* Teal */
-
-        /* Modal Styles */
-        .modal {
+        .tab-content {
             display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
         }
-        .modal-content {
-            background-color: white;
-            margin: 10% auto;
-            padding: 20px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
+        .tab-content.active {
+            display: block;
         }
-        .modal-header {
+        .code-input {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .codes-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .codes-list h4 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .code-item {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            padding: 5px 0;
+            border-bottom: 1px solid #dee2e6;
         }
-        .close {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
+        .code-item:last-child {
+            border-bottom: none;
         }
-        .close:hover {
-            color: black;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .btn {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        .btn:hover {
-            background: #0056b3;
-        }
-        .btn-danger {
-            background: #dc3545;
-        }
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        .team-legend {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 5px;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .legend-color {
-            width: 25px;
-            height: 20px;
-            border-radius: 4px;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: bold;
-        }
-        .member-preview {
-            padding: 5px 10px;
-            border-radius: 4px;
-            color: white;
-            font-weight: bold;
-            margin-top: 5px;
-            text-align: center;
-        }
-        .login-form {
-            text-align: left;
-        }
-        .login-form h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-        }
-        .access-note {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+        .error-message {
+            color: #dc3545;
             font-size: 14px;
-            color: #1976d2;
-        }
-        .permission-note {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            color: #856404;
+            margin-top: 10px;
+            text-align: center;
         }
     </style>
 </head>
@@ -939,39 +354,64 @@
     <!-- Login Screen -->
     <div id="loginScreen" class="login-container">
         <h2>Team Leave Calendar</h2>
-        <div class="access-note">
-            <strong>Secure Access:</strong> Each team member can only edit their own leave entries.
+        
+        <div class="login-tabs">
+            <button class="login-tab active" onclick="switchTab('member')">Team Member</button>
+            <button class="login-tab" onclick="switchTab('view')">View Only</button>
         </div>
-        <form id="loginForm" class="login-form">
-            <div class="form-group">
-                <label for="loginSelect">Select Your Name:</label>
-                <select id="loginSelect" required>
-                    <option value="">Choose your name</option>
-                    <option value="FZL">FZL</option>
-                    <option value="FRDY">FRDY</option>
-                    <option value="HLZH">HLZH</option>
-                    <option value="NRDN">NRDN</option>
-                    <option value="MHSN">MHSN</option>
-                    <option value="FQH">FQH</option>
-                </select>
+
+        <!-- Member Login Tab -->
+        <div id="memberTab" class="tab-content active">
+            <div class="access-note">
+                <strong>Team Member Access:</strong> Enter your unique code to manage your leave entries.
             </div>
-            <button type="submit" class="btn" style="width: 100%;">Access Calendar</button>
-        </form>
+            <form id="memberLoginForm" class="login-form">
+                <div class="form-group">
+                    <label for="memberCode">Your Access Code:</label>
+                    <input type="password" id="memberCode" class="code-input" placeholder="Enter your code" required maxlength="8">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Login as Team Member</button>
+                <div id="memberError" class="error-message" style="display: none;"></div>
+            </form>
+            
+            <!-- Development/Demo purposes - remove in production -->
+            <div class="codes-list">
+                <h4>🔒 Access Codes (for demo):</h4>
+                <div class="code-item"><span>FZL:</span> <strong>FZL2024</strong></div>
+                <div class="code-item"><span>FRDY:</span> <strong>FRDY2024</strong></div>
+                <div class="code-item"><span>HLZH:</span> <strong>HLZH2024</strong></div>
+                <div class="code-item"><span>NRDN:</span> <strong>NRDN2024</strong></div>
+                <div class="code-item"><span>MHSN:</span> <strong>MHSN2024</strong></div>
+                <div class="code-item"><span>FQH:</span> <strong>FQH2024</strong></div>
+            </div>
+        </div>
+
+        <!-- View Only Tab -->
+        <div id="viewTab" class="tab-content">
+            <div class="access-note">
+                <strong>View Only Access:</strong> Browse the calendar without editing permissions.
+            </div>
+            <button type="button" class="btn" style="width: 100%;" onclick="loginAsViewer()">View Calendar</button>
+        </div>
     </div>
 
     <!-- Main Calendar (hidden initially) -->
     <div id="calendarScreen" class="container" style="display: none;">
         <div class="header">
             <h1>Team Leave Calendar</h1>
-            <p>Click on any date to add your leave • Double-click your own entries to edit</p>
+            <p id="headerInstructions">Click on any date to add your leave • Double-click your own entries to edit</p>
             <div class="user-info">
-                Logged in as: <strong id="currentUser"></strong>
+                <span id="currentUserDisplay"></span>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
         </div>
         
-        <div class="permission-note">
+        <div id="permissionNote" class="permission-note">
             <strong>Your Permissions:</strong> You can add new leave for yourself and edit/delete only your own existing entries. Other members' entries are read-only.
+        </div>
+        
+        <div id="viewOnlyNote" class="view-only-note" style="display: none;">
+            <strong>View Only Mode:</strong> You can browse all team leave entries but cannot make any changes. To edit leave, login with your team member access code.
         </div>
         
         <div class="calendar-nav">
@@ -1060,46 +500,101 @@
         let leaves = JSON.parse(localStorage.getItem('teamLeaves')) || [];
         let editingLeaveId = null;
         let currentUser = localStorage.getItem('currentUser') || null;
+        let userRole = localStorage.getItem('userRole') || null; // 'member' or 'viewer'
 
         const teamMembers = ['FZL', 'FRDY', 'HLZH', 'NRDN', 'MHSN', 'FQH'];
+        
+        // Access codes for each team member
+        const accessCodes = {
+            'FZL2024': 'FZL',
+            'FRDY2024': 'FRDY',
+            'HLZH2024': 'HLZH',
+            'NRDN2024': 'NRDN',
+            'MHSN2024': 'MHSN',
+            'FQH2024': 'FQH'
+        };
 
         // Check if user is logged in on page load
-        if (currentUser) {
+        if (currentUser && userRole) {
             showCalendar();
         }
 
-        // Login functionality
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.login-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Member login functionality
+        document.getElementById('memberLoginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const selectedUser = document.getElementById('loginSelect').value;
-            if (selectedUser) {
-                currentUser = selectedUser;
+            const enteredCode = document.getElementById('memberCode').value.toUpperCase();
+            const errorDiv = document.getElementById('memberError');
+            
+            if (accessCodes[enteredCode]) {
+                currentUser = accessCodes[enteredCode];
+                userRole = 'member';
                 localStorage.setItem('currentUser', currentUser);
+                localStorage.setItem('userRole', userRole);
                 showCalendar();
+            } else {
+                errorDiv.textContent = 'Invalid access code. Please check your code and try again.';
+                errorDiv.style.display = 'block';
+                document.getElementById('memberCode').value = '';
             }
         });
+
+        // View only login
+        function loginAsViewer() {
+            currentUser = null;
+            userRole = 'viewer';
+            localStorage.setItem('userRole', userRole);
+            localStorage.removeItem('currentUser');
+            showCalendar();
+        }
 
         function showCalendar() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('calendarScreen').style.display = 'block';
-            document.getElementById('currentUser').textContent = currentUser;
-            updateMemberPreview();
+            
+            if (userRole === 'member') {
+                document.getElementById('currentUserDisplay').innerHTML = `Logged in as: <strong>${currentUser}</strong>`;
+                document.getElementById('headerInstructions').textContent = 'Click on any date to add your leave • Double-click your own entries to edit';
+                document.getElementById('permissionNote').style.display = 'block';
+                document.getElementById('viewOnlyNote').style.display = 'none';
+                updateMemberPreview();
+            } else {
+                document.getElementById('currentUserDisplay').innerHTML = `<strong>View Only Mode</strong>`;
+                document.getElementById('headerInstructions').textContent = 'Browse team leave calendar • Login with access code to make changes';
+                document.getElementById('permissionNote').style.display = 'none';
+                document.getElementById('viewOnlyNote').style.display = 'block';
+            }
+            
             renderCalendar();
         }
 
         function logout() {
             currentUser = null;
+            userRole = null;
             localStorage.removeItem('currentUser');
+            localStorage.removeItem('userRole');
             document.getElementById('loginScreen').style.display = 'block';
             document.getElementById('calendarScreen').style.display = 'none';
-            document.getElementById('loginSelect').value = '';
+            document.getElementById('memberCode').value = '';
+            document.getElementById('memberError').style.display = 'none';
+            switchTab('member'); // Reset to member tab
         }
 
         function updateMemberPreview() {
             const preview = document.getElementById('memberPreview');
             const staffNameField = document.getElementById('staffName');
             
-            if (currentUser) {
+            if (currentUser && userRole === 'member') {
                 staffNameField.value = currentUser;
                 preview.textContent = currentUser;
                 preview.className = `member-preview member-${currentUser}`;
@@ -1140,8 +635,11 @@
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day';
-                dayElement.onclick = () => openModal(year, month, day);
+                dayElement.className = userRole === 'member' ? 'calendar-day' : 'calendar-day view-only';
+                
+                if (userRole === 'member') {
+                    dayElement.onclick = () => openModal(year, month, day);
+                }
                 
                 const dayNumber = document.createElement('div');
                 dayNumber.className = 'day-number';
@@ -1158,7 +656,7 @@
 
                 dayLeaves.forEach(leave => {
                     const leaveElement = document.createElement('div');
-                    const isEditable = leave.staffName === currentUser;
+                    const isEditable = userRole === 'member' && leave.staffName === currentUser;
                     
                     leaveElement.className = `leave-item member-${leave.staffName} ${isEditable ? 'editable' : 'non-editable'}`;
                     leaveElement.textContent = leave.staffName;
@@ -1166,7 +664,10 @@
                     // Create tooltip
                     let tooltip = `${leave.staffName} - ${leave.leaveType}`;
                     if (leave.notes) tooltip += `\n${leave.notes}`;
-                    if (isEditable) {
+                    
+                    if (userRole === 'viewer') {
+                        tooltip += '\n(View only mode)';
+                    } else if (isEditable) {
                         tooltip += '\n(Double-click to edit)';
                     } else {
                         tooltip += '\n(Read-only - not your entry)';
@@ -1181,12 +682,19 @@
                         };
                         leaveElement.onclick = (e) => {
                             e.stopPropagation();
-                            // Single click just shows info
                         };
                     } else {
                         leaveElement.onclick = (e) => {
                             e.stopPropagation();
-                            alert(`This is ${leave.staffName}'s leave entry.\nYou can only edit your own entries.\n\nDetails:\n- Type: ${leave.leaveType}\n- Dates: ${leave.startDate} to ${leave.endDate}${leave.notes ? '\n- Notes: ' + leave.notes : ''}`);
+                            let message = `${leave.staffName}'s Leave Entry\n\nType: ${leave.leaveType}\nDates: ${leave.startDate} to ${leave.endDate}`;
+                            if (leave.notes) message += `\nNotes: ${leave.notes}`;
+                            
+                            if (userRole === 'viewer') {
+                                message += '\n\n(You are in view-only mode)';
+                            } else {
+                                message += '\n\n(You can only edit your own entries)';
+                            }
+                            alert(message);
                         };
                     }
                     
@@ -1198,6 +706,11 @@
         }
 
         function openModal(year, month, day) {
+            if (userRole !== 'member') {
+                alert('You need to login with your team member access code to add or edit leave entries.');
+                return;
+            }
+
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             document.getElementById('startDate').value = dateStr;
             document.getElementById('endDate').value = dateStr;
@@ -1212,9 +725,13 @@
         }
 
         function editLeave(leaveId) {
+            if (userRole !== 'member') {
+                alert('You need to login with your team member access code to edit leave entries.');
+                return;
+            }
+
             const leave = leaves.find(l => l.id === leaveId);
             
-            // Double-check permissions
             if (!leave) {
                 alert('Leave entry not found!');
                 return;
@@ -1247,6 +764,11 @@
         }
 
         function deleteLeave() {
+            if (userRole !== 'member') {
+                alert('You need to login with your team member access code to delete leave entries.');
+                return;
+            }
+
             if (!editingLeaveId) {
                 alert('No leave selected for deletion!');
                 return;
@@ -1276,8 +798,13 @@
         document.getElementById('leaveForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            if (userRole !== 'member') {
+                alert('You need to login with your team member access code to save leave entries.');
+                return;
+            }
+            
             const formData = {
-                staffName: currentUser, // Always use current user
+                staffName: currentUser,
                 leaveType: document.getElementById('leaveType').value,
                 startDate: document.getElementById('startDate').value,
                 endDate: document.getElementById('endDate').value,
@@ -1292,74 +819,4 @@
 
             if (editingLeaveId) {
                 // Editing existing leave
-                const leave = leaves.find(l => l.id === editingLeaveId);
-                
-                if (!leave) {
-                    alert('Leave entry not found!');
-                    return;
-                }
-                
-                if (leave.staffName !== currentUser) {
-                    alert(`You can only edit your own leave entries!\nThis entry belongs to ${leave.staffName}.`);
-                    return;
-                }
-
-                const leaveIndex = leaves.findIndex(l => l.id === editingLeaveId);
-                leaves[leaveIndex] = { ...formData, id: editingLeaveId };
-                alert('Leave updated successfully!');
-            } else {
-                // Adding new leave
-                formData.id = Date.now().toString() + '_' + currentUser;
-                leaves.push(formData);
-                alert('Leave added successfully!');
-            }
-
-            saveLeaves();
-            renderCalendar();
-            closeModal();
-        });
-
-        function previousMonth() {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
-        }
-
-        function nextMonth() {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('leaveModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        }
-
-        // Initialize calendar if user is already logged in
-        if (currentUser) {
-            renderCalendar();
-        }
-    </script>
-</body>
-</html>function nextMonth() {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('leaveModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        }
-
-        // Initialize calendar if user is already logged in
-        if (currentUser) {
-            renderCalendar();
-        }
-    </script>
-</body>
-</html>
+                const leave = leaves.find(l => l.id === editingLe
